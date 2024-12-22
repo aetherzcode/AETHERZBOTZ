@@ -40,12 +40,12 @@
 
 ### `Render`
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https%3A%2F%2Fgithub.com%2Faetherzcode%2FBOT-WA-AETHER)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https%3A%2F%2Fgithub.com%2Faetherzcode%2FAETHERZBOTZ)
 
 
 ## Run On Heroku
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/aetherzcode/BOT-WA-AETHER)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/aetherzcode/AETHERZBOTZ)
 # Heroku Buildpack
 ### Instal Buildpack
 ```bash
@@ -62,8 +62,8 @@
 * Unduh & Instal ImageMagick [`Klik Disini`](https://imagemagick.org/script/download.php)
 
 ```javascript
-git clone https://github.com/aetherzcode/BOT-WA-AETHER
-cd BOT-WA-AETHER
+git clone https://github.com/aetherzcode/AETHERZBOTZ
+cd AETHERZBOTZ
 npm i
 npm start
 ```
