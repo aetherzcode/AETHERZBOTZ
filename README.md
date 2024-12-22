@@ -64,7 +64,7 @@
 ```javascript
 git clone https://github.com/aetherzcode/AETHERZBOTZ
 cd AETHERZBOTZ
-npm i
+npm install
 npm start
 ```
 ```javascript
