@@ -1,6 +1,6 @@
-global.owner = ['YOUR_NUMBER'
-global.mods = ['YOUR_NUMBER'
-global.prems = ['YOUR_NUMBER'
+global.owner = ['YOUR_NUMBER']
+global.mods = ['YOUR_NUMBER']
+global.prems = ['YOUR_NUMBER']
 global.numberowner = 'YOUR_NUMBER'
 global.nameowner = 'YOUR_NAME'
 global.mail = 'YOUR_EMAIL' 
