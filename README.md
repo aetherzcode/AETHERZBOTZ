@@ -1,6 +1,9 @@
 ## New Update
 
 **Pembaruan :**
+- Upload file ke repo bot github
+- Update file repo bot github
+- Delete file repo bot github
 - Fix upload file ke server cdn 
 - Menggunakan QR dan pairing code 
 - Penggunaan pairing ```node . --pairing```
