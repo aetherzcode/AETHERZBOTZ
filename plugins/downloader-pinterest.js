@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-let handler = async (m, { args }) => {
+let handler = async (m, { conn, args }) => {
   if (!args.length) {
     return m.reply('Harap masukkan kata kunci pencarian!\nContoh: .pinterest kucing lucu');
   }
@@ -8,7 +8,7 @@ let handler = async (m, { args }) => {
   const query = args.join(' ');
 
   try {
-    const pinterestRes = await fetch(https://api.betabotz.eu.org/api/search/pinterest?text1=${encodeURIComponent(query)}&apikey=${lann});
+    const pinterestRes = await fetch(`https://api.betabotz.eu.org/api/search/pinterest?text1=${encodeURIComponent(query)}&apikey=${lann}`);
     const data = await pinterestRes.json();
 
     if (!data.result || !data.result.length) {
@@ -19,11 +19,11 @@ let handler = async (m, { args }) => {
     for (let i = 0; i < limit; i++) {
       await conn.sendMessage(m.chat, {
         image: { url: data.result[i] },
-        caption: Berikut hasil pencarian untuk: "${query}"
+        caption: `Berikut hasil pencarian untuk: "${query}"`
       }, { quoted: m });
     }
   } catch (error) {
-    m.reply(Terjadi kesalahan: ${error.message});
+    m.reply(`Terjadi kesalahan: ${error.message}`);
   }
 };
 
