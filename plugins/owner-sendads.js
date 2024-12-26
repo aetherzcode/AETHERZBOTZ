@@ -1,10 +1,11 @@
 let handler = async (m, { conn, isOwner }) => {
     if (!isOwner) return m.reply('Hanya owner yang dapat menggunakan perintah ini!');
+    
     const delay = 3000; // jeda 3 detik
-    const message = `*Gak maksa buy bang, Mau promosi saja*\n
+    const message = `*Gak maksa buy bang, gua cuma mau promosi doang*\n
 [ SEWA BOT ]
 
-💸10.000 / Bulan
+💸 10.000 / Bulan
 ✅ Added 1 Group
 ✅ Free User Premium
 ✅ Unlimited Limit
@@ -45,11 +46,11 @@ https://wa.me/6285798045817`;
             totalSent++;
             await delayFunc(delay);
         } catch (e) {
-            console.error(Gagal mengirim pesan ke grup ${id}:, e.message);
+            console.error(`Gagal mengirim pesan ke grup ${id}:`, e.message);
         }
     }
 
-    m.reply(Pesan iklan berhasil dikirim ke ${totalSent} grup.);
+    m.reply(`Pesan iklan berhasil dikirim ke ${totalSent} grup.`);
 };
 
 const delayFunc = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
