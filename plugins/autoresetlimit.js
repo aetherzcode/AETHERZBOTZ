@@ -2,7 +2,7 @@ let isAutoResetEnabled = false;
 let autoResetTimeout = null; 
 
 let handler = async (m, { conn, args, command }) => {
-    let lim = 10; 
+    let lim = 30; 
 
     if (args.length === 0) {
         
