@@ -1,30 +1,41 @@
-let aether1 = '';
-let aether2 = '';
+let groupData = {}; // Objek untuk menyimpan data grup secara dinamis
 
 async function before(m) {
     if (m.isGroup) {
-        const aether3 = await conn.groupMetadata(m.chat).then(res => res.subject);
-        const aether4 = await conn.groupMetadata(m.chat).then(res => res.desc);
+        const groupId = m.chat; // ID grup
+        const groupMetadata = await conn.groupMetadata(groupId); // Metadata grup
+        const newGroupName = groupMetadata.subject; // Nama grup baru
+        const newGroupDesc = groupMetadata.desc || ''; // Deskripsi grup baru (default kosong jika tidak ada)
 
-        if (aether1 && aether3 !== aether1) {
-            await conn.sendMessage(
-                m.chat,
-                {
-                    text: `🔄 *Nama grup telah berubah* \n\nSebelumnya: *${aether1}*\nSekarang: *${aether3}*`
-                }
-            );
+        // Periksa apakah grup sudah memiliki data sebelumnya
+        if (!groupData[groupId]) {
+            groupData[groupId] = {
+                name: newGroupName,
+                desc: newGroupDesc
+            };
         }
 
-        if (aether2 && aether4 !== aether2) {
+        // Cek perubahan nama grup
+        if (groupData[groupId].name !== newGroupName) {
             await conn.sendMessage(
-                m.chat,
+                groupId,
                 {
-                    text: `🔄 *Deskripsi grup telah berubah* \n\nSebelumnya: *${aether2}*\nSekarang: *${aether4}*`
+                    text: `🔄 *Nama grup telah berubah* \n\nSebelumnya: *${groupData[groupId].name}*\nSekarang: *${newGroupName}*`
                 }
             );
+            groupData[groupId].name = newGroupName; // Perbarui nama grup
         }
-        aether1 = aether3;
-        aether2 = aether4;
+
+        // Cek perubahan deskripsi grup
+        if (groupData[groupId].desc !== newGroupDesc) {
+            await conn.sendMessage(
+                groupId,
+                {
+                    text: `🔄 *Deskripsi grup telah berubah* \n\nSebelumnya: *${groupData[groupId].desc}*\nSekarang: *${newGroupDesc}*`
+                }
+            );
+            groupData[groupId].desc = newGroupDesc; // Perbarui deskripsi grup
+        }
     }
 }
 
