@@ -27,16 +27,16 @@
         "betabotz",
         "baileys"
     ],
-    "homepage": "https://github.com/aetherzcode/BOT-WA-AETHER",
+    "homepage": "https://github.com/aetherzcode/AETHERZBOTZ",
     "author": {
         "name": "AETHERZBOTZ"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/aetherzcode/BOT-WA-AETHER.git"
+        "url": "git+https://github.com/aetherzcode/AETHERZBOTZ.git"
     },
     "bugs": {
-        "url": "https://github.com/aetherzcode/BOT-WA-AETHER/issues"
+        "url": "https://github.com/aetherzcode/AETHERZBOTZ/issues"
     },
     "license": "MIT",
     "dependencies": {
