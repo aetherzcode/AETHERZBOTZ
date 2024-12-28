@@ -2,14 +2,14 @@ const moment = require('moment-timezone');
 
 let handler = async (m, { text, conn }) => {
     if (!text) {
-        return m.reply(`╭═══❯ BELAHAN JIWA ❮═══
+        return m.reply(`╭═══❯ *BELAHAN JIWA* ❮═══
 │
 │ ❌ Masukkan 2 nama untuk dianalisis!
 │ 
-│ 📝 Format:
+│ 📝 *Format:*
 │ .soulmatch nama1|nama2
 │
-│ 📌 Contoh:
+│ 📌 *Contoh:*
 │ .soulmatch Raiden|Mei
 │
 ╰════════════════════`);
@@ -27,7 +27,7 @@ let handler = async (m, { text, conn }) => {
                 .map(char => char.charCodeAt(0) - 96)
                 .reduce((a, b) => a + b, 0) % 9 + 1;
 
-            const elements = ['Api 🔥', 'Air 💧', 'Tanah 🌍', 'Angin 🌪', 'Petir ⚡', 'Es ❄', 'Cahaya ✨', 'Bayangan 🌑'];
+            const elements = ['Api 🔥', 'Air 💧', 'Tanah 🌍', 'Angin 🌪️', 'Petir ⚡', 'Es ❄️', 'Cahaya ✨', 'Bayangan 🌑'];
 
 
             let element;
@@ -109,35 +109,35 @@ let handler = async (m, { text, conn }) => {
             return readings[0].join('\n');
         };
 
-        const caption = `╭═══❯ BELAHAN JIWA ❮═══
+        const caption = `╭═══❯ *BELAHAN JIWA* ❮═══
 │
-│ 👤 ${nama1}
+│ 👤 *${nama1}*
 │ ├ 🔮 Soul Type: ${getRandomSoulType()}
 │ ├ 🌟 Element: ${soul1.element}
 │ └ 🎯 Zodiac: ${soul1.zodiac}
 │
-│ 👤 ${nama2}
+│ 👤 *${nama2}*
 │ ├ 🔮 Soul Type: ${getRandomSoulType()}
 │ ├ 🌟 Element: ${soul2.element}
 │ └ 🎯 Zodiac: ${soul2.zodiac}
 │
-│ 💫 COMPATIBILITY
+│ 💫 *COMPATIBILITY*
 │ ├ 📊 Score: ${compatibility}%
 │ └ 🎭 Status: ${getMatchDescription(compatibility)}
 │
-│ 🔮 Soul Reading
+│ 🔮 *Soul Reading*
 ${generateSoulReading(compatibility)}
 │
 ╰════════════════════
 
-📅 Analysis Date: ${moment().tz('Asia/Jakarta').format('DD/MM/YYYY HH:mm:ss')}`;
+📅 *Analysis Date:* ${moment().tz('Asia/Jakarta').format('DD/MM/YYYY HH:mm:ss')}`;
 
         return m.reply(caption);
 
     } catch (error) {
         console.error('Error in soulmatch command:', error);
         return m.reply(`╭══════════════════════
-│ ❌ Terjadi Kesalahan
+│ ❌ *Terjadi Kesalahan*
 │ Mohon coba beberapa saat lagi
 ╰═════════════════════`);
     }
