@@ -4,9 +4,18 @@ const cooldownAfterWork = 5 * 60 * 1000; // Cooldown setelah bekerja selama 5 me
 let handler = async (m, { isPrems, conn, text, usedPrefix, command }) => {
     const user = global.db.data.users[m.sender];
 
+    if (user.job === 'Pengangguran') {
+        throw `Kamu belum mempunyai pekerjaan. Ketik *${usedPrefix}lamarkerja* untuk melamar pekerjaan`;
+    }
+
+
     if (user.jail === true) {
         throw '*Kamu tidak bisa melakukan aktivitas karena masih dalam penjara!*';
     }
+    if (user.culik === true) {
+        throw '*Kamu tidak bisa melakukan aktivitas karena masih dalam sel penculik!*';
+    }
+        
 
     // Cek cooldown antara pekerjaan dan cooldown setelah bekerja selama 5 menit
     if (new Date() - user.pekerjaansatu < cooldown || user.pekerjaansatu + cooldownAfterWork > new Date()) {
@@ -20,10 +29,7 @@ let handler = async (m, { isPrems, conn, text, usedPrefix, command }) => {
         throw `Kamu sudah pergi bekerja sebelumnya. Tunggu selama *${formattedTime}* untuk bekerja lagi`;
     }
 
-    if (user.job == '-') {
-        throw 'Kamu belum mempunyai pekerjaan. Ketik */lamarkerja* untuk melamar pekerjaan';
-    }
-
+  
     const jobList = {
         'gojek': [11000, 10000, 10000],
         'kantoran': [32000, 32000, 40000],
@@ -36,6 +42,8 @@ let handler = async (m, { isPrems, conn, text, usedPrefix, command }) => {
         'fullstack developer': [210000, 210000, 200000],
         'pemain sepak bola': [900000, 900000, 1000000],
         'karyawan indomaret': [27000, 27000, 30000],
+        'pembunuh bayaran': [31000, 31000, 40000],    
+        'pemburu manusia': [31000, 31000, 40000],        
         'polisi': [31000, 31000, 40000],
         'trader': [1700000, 1700000, 2000000],
         'dokter': [1700000, 1700000, 2000000],
