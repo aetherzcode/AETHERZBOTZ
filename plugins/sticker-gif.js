@@ -27,7 +27,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 handler.help = ['toimg', 'togif']
 handler.tags = ['tools']
 handler.command = /^(toimg|togif)$/i
-handler.register = true;
 handler.limit = true;
+handler.register = true;
 
 module.exports = handler;
