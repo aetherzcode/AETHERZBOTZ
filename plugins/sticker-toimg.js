@@ -1,21 +1,38 @@
-const uploadImage = require('../lib/uploadFile');
+const sharp = require('sharp');
 
-let handler = async (m, { conn, usedPrefix, command }) => {
-  if (!m.quoted) throw `Balas stiker dengan caption *${usedPrefix + command}*`;
-  let mime = m.quoted.mimetype || '';
-  if (!/webp/.test(mime)) throw `Balas stiker dengan caption *${usedPrefix + command}*`;
-  let media = await m.quoted.download();
-  let out = Buffer.alloc(0);
-  if (/webp/.test(mime)) {
-    out = await uploadImage(media);
+const handler = async (m, { conn, usedPrefix, command }) => {
+  const notStickerMessage = `Reply sticker dengan command *${usedPrefix + command}*`;
+
+  if (!m.quoted) throw notStickerMessage;
+
+  const q = m.quoted || m;
+  const mime = q.mimetype || '';
+
+  if (!/image\/webp/.test(mime)) throw notStickerMessage;
+
+  try {
+
+    const media = await q.download();
+    const decodedBuffer = await sharp(media).toFormat('png').toBuffer();
+    if (decodedBuffer.length > 0) {
+      await conn.sendFile(m.chat, decodedBuffer, 'out.png', wm, m);
+    } else {
+      throw `${global.eror}`;
+    }
+  } catch (error) {
+    console.error(error);
+    if (error.message === 'Timeout of 10000ms exceeded') {
+      m.reply('Proses konversi terlalu lama. Silakan coba lagi.');
+    } else {
+      m.reply(global.eror);
+    }
   }
-  await conn.sendMessage(m.chat, { image: { url: out }, caption: '*DONE*' }, { quoted: m });
-}
+};
 
-handler.help = ['toimg (reply)'];
+handler.help = ['toimg'];
 handler.tags = ['sticker'];
-handler.command = ['toimg'];
-handler.register = true;
+handler.command = ['toimg', 'toimage'];
 handler.limit = true;
+handler.register = true;
 
 module.exports = handler;
