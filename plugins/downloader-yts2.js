@@ -13,22 +13,21 @@ video.forEach(async(data, index) => {
         responseText += `*${index + 1}.* ${data.title} || ${data.timestamp}\n`;
     });
     const { key } = await conn.reply(m.chat, responseText, m);   
-    conn.ytsearch[m.sender] = { anu, key, title };
-switch (command) {
-case "yts3" : {
+    conn.ytsaudio[m.sender] = { anu, key, title };
+}
 handler.before = async (m, { conn }) => {
-    conn.ytsearch = conn.ytsearch ? conn.ytsearch : {};
-    if (m.isBaileys || !(m.sender in conn.ytsearch)) return;
-    const { anu, key, title } = conn.ytsearch[m.sender];
+    conn.ytsaudio = conn.ytsaudio ? conn.ytsaudio : {};
+    if (m.isBaileys || !(m.sender in conn.ytsaudio)) return;
+    const { anu, key, title } = conn.ytsaudio[m.sender];
     if (!m.quoted || m.quoted.id !== key.id || !m.text) return;
     const choice = m.text.trim();
     const inputNumber = Number(choice);
     if (inputNumber >= 1 && inputNumber <= anu.length) {
         conn.sendMessage(m.chat, { delete: key });
-        delete conn.ytsearch[m.sender];
+        delete conn.ytsaudio[m.sender];
         const selectedTrack = anu[inputNumber - 1];
         try {
-            if (anu.seconds >= 3600) {
+            if (selectedTrack.seconds >= 3600) {
             return conn.reply(m.chat, 'Video is longer than 1 hour!', m);
             } else {
             let audioUrl = await youtube(selectedTrack.url);
@@ -80,58 +79,10 @@ handler.before = async (m, { conn }) => {
         await conn.reply(m.chat, "[❗] Nomor urut tidak valid. Silakan pilih nomor yang sesuai dengan daftar di atas.", m);
         conn.sendMessage(m.chat, { react: { text: '🚫', key: m.key }})
      }
-   }
- }
-  break
- case "yts4" : {
- handler.before = async (m, { conn }) => {
-    conn.ytsearch = conn.ytsearch ? conn.ytsearch : {};
-    if (m.isBaileys || !(m.sender in conn.ytsearch)) return;
-    const { anu, key, title } = conn.ytsearch[m.sender];
-    if (!m.quoted || m.quoted.id !== key.id || !m.text) return;
-    const choice = m.text.trim();
-    const inputNumber = Number(choice);
-    if (inputNumber >= 1 && inputNumber <= anu.length) {
-        conn.sendMessage(m.chat, { delete: key });
-        delete conn.ytsearch[m.sender];
-        const selectedTrack = anu[inputNumber - 1];
-        try {
-            if (anu.seconds >= 3600) {
-            return conn.reply(m.chat, 'Video is longer than 1 hour!', m);
-            } else {
-            let videoUrl = await youtube(selectedTrack.url);
-            let videoLink = videoUrl.result.mp4
-             let tekss = '';
-            tekss += `∘ Viewers : ${selectedTrack.views}\n`;
-            tekss += `∘ Upload At : ${selectedTrack.ago}\n`;
-            tekss += `∘ Channel : ${selectedTrack.author.url}\n`;
-            tekss += `∘ Url : ${selectedTrack.url}\n`;
-            tekss += `∘ Description : ${selectedTrack.description}\n`;
-            conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key }})
-            await conn.sendMessage(m.chat, {
-            video : {
-            url: `${videoLink}`
-            },
-            caption : `${tekss}`
-            },{ quoted: m})
-            }
-        } catch (error) {
-            console.error('Error downloading and sending audio:', error);
-            await conn.reply(m.chat, 'error saat menngambil data, coba lagi dengan nomor yang lain tau hubungi owner!', m);
-            conn.sendMessage(m.chat, { react: { text: '🚫', key: m.key }})
-        }
-    } else {
-        await conn.reply(m.chat, "[❗] Nomor urut tidak valid. Silakan pilih nomor yang sesuai dengan daftar di atas.", m);
-        conn.sendMessage(m.chat, { react: { text: '🚫', key: m.key }})
-      }
-    }
-  }
- break
-}
 };
-handler.help = ['yts3 <pencarian>', 'yts4 <pencarian>'];
+handler.help = ['yts2 <pencarian>'];
 handler.tags = ['downloader'];
-handler.command = /^(yts3|yts4)$/i;
+handler.command = /^(yts2)$/i;
 handler.limit = true;
 handler.register = true;
 module.exports = handler;
