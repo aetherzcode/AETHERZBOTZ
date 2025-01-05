@@ -1,5 +1,5 @@
 const axios = require('axios');
-const yts = require('yt-search');
+const ytSearch = require('yt-search'); 
 
 const formatAudio = ['mp3', 'm4a', 'webm', 'acc', 'flac', 'opus', 'ogg', 'wav'];
 const formatVideo = ['360', '480', '720', '1080', '1440', '4k'];
@@ -69,7 +69,7 @@ const handler = async (m, { conn, usedPrefix, text, command }) => {
   if (!text) return m.reply(`Ketikkan nama lagu yang kamu sedang cari, misal\n${usedPrefix + command} dj kane`);
 
   try {
-    const search = await yts(text);
+    const search = await ytSearch(text);
     const video = search.all[0];
 
     if (!video) {
@@ -92,7 +92,7 @@ const handler = async (m, { conn, usedPrefix, text, command }) => {
           title: video.title,
           mediaType: 1,
           previewType: 1,
-          body: `YT Play By Mahiru-MD`,
+          body: `YT Play By AETHER`,
           thumbnailUrl: video.image,
           renderLargerThumbnail: true,
           mediaUrl: video.url,
@@ -104,10 +104,20 @@ const handler = async (m, { conn, usedPrefix, text, command }) => {
     const result = await ddownr.download(video.url, "mp3");
     if (!result.downloadUrl) return m.reply('Gagal mengunduh audio.');
 
+    // Mengirimkan file sebagai dokumen
+    await conn.sendMessage(m.chat, {
+      document: { url: result.downloadUrl },
+      mimetype: 'audio/mpeg',
+      fileName: `${video.title}.mp3`
+    }, { quoted: m });
+
+    // Mengirimkan file sebagai voice note
     await conn.sendMessage(m.chat, {
       audio: { url: result.downloadUrl },
       mimetype: 'audio/mpeg',
+      ptt: true // Mengirim sebagai voice note
     }, { quoted: m });
+
   } catch (error) {
     m.reply(`Terjadi kesalahan:\n${error.message}`);
   }
