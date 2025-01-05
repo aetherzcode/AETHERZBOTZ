@@ -1,87 +1,120 @@
 const axios = require('axios');
 const yts = require('yt-search');
 
-let handler = async (m, { conn, command, text, prefix }) => {
-  if (!text || text.trim() === "") 
-    return conn.reply(m.chat, `🎵 *Masukkan judul atau link!* 🎶\nContoh:\n\n${prefix + command} sephia\n${prefix + command} https://youtube.com/watch?v=example`, m);
-  
-  
-  conn.reply(m.chat, '⏳ *Mohon tunggu, sedang memproses permintaan audio...* 🎧', m);
+const formatAudio = ['mp3', 'm4a', 'webm', 'acc', 'flac', 'opus', 'ogg', 'wav'];
+const formatVideo = ['360', '480', '720', '1080', '1440', '4k'];
 
-  try {
-    let videoUrl, title, thumbnail, duration, views;
+const ddownr = {
+  download: async (url, format) => {
+    if (!formatAudio.includes(format) && !formatVideo.includes(format)) {
+      throw new Error('Format tidak didukung, cek daftar format yang tersedia.');
+    }
 
-    
-    const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w\-_]+/;
-    if (ytRegex.test(text)) {
-      videoUrl = text.trim();
-      title = `🎶 ᴘᴏᴡᴇʀᴇᴅ ʙʏ ${botname}`;
-      thumbnail = 'https://g.top4top.io/p_3273ia0x21.jpg';
-      
-      duration = 'Unknown';
-      views = 'Unknown';
-    } else {
-      
-      const search = await yts(text);
-      if (!search || !search.videos.length) {
-        return conn.reply(m.chat, '🚫 *Video tidak ditemukan. Coba kata kunci lain.*', m);
+    const config = {
+      method: 'GET',
+      url: `https://p.oceansaver.in/ajax/download.php?format=${format}&url=${encodeURIComponent(url)}&api=dfcb6d76f2f6a9894gjkege8a4ab232222`,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
-      const video = search.videos[0];
-      videoUrl = video.url;
-      title = video.title;
-      thumbnail = video.image;
-      duration = video.timestamp || 'Unknown';  // Menambahkan durasi yang ditemukan
-      views = video.views || 'Unknown';  // Menambahkan views yang ditemukan
+    };
+
+    try {
+      const response = await axios.request(config);
+
+      if (response.data && response.data.success) {
+        const { id, title, info } = response.data;
+        const { image } = info;
+        const downloadUrl = await ddownr.cekProgress(id);
+
+        return {
+          id: id,
+          image: image,
+          title: title,
+          downloadUrl: downloadUrl
+        };
+      } else {
+        throw new Error('Gagal mengambil detail video.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
     }
+  },
+  cekProgress: async (id) => {
+    const config = {
+      method: 'GET',
+      url: `https://p.oceansaver.in/ajax/progress.php?id=${id}`,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    };
 
-    
-    const encodedUrl = encodeURIComponent(videoUrl);
+    try {
+      while (true) {
+        const response = await axios.request(config);
 
-    
-    const res = await axios.get(`https://api.siputzx.my.id/api/d/ytmp3?url=${encodedUrl}`);
-    const result = res.data;
-
-    if (!result.status || !result.data || !result.data.dl) {
-      return conn.reply(m.chat, '⚠️ *Gagal mendapatkan audio dari link tersebut. Pastikan URL benar.*', m);
+        if (response.data && response.data.success && response.data.progress === 1000) {
+          return response.data.download_url;
+        }
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
     }
-
-    const audioUrl = result.data.dl;
-
-    
-    await Promise.all([
-      conn.sendMessage(m.chat, {
-        text: `🎶 *Audio dari:* ${title}\n📅 *Durasi:* ${duration}\n👁️ *Views:* ${views}\n📥 *Sedang mengirim audio...*`,
-        contextInfo: {
-          externalAdReply: {
-            title: title,
-            body: '',
-            thumbnailUrl: thumbnail,
-            sourceUrl: videoUrl,
-            mediaType: 1,
-            showAdAttribution: true,
-            renderLargerThumbnail: true,
-          },
-        },
-      }, { quoted: m }),
-      
-      conn.sendMessage(m.chat, {
-        audio: { url: audioUrl },
-        mimetype: 'audio/mpeg',
-        fileName: `${title}.mp3`,
-      }, { quoted: m })
-    ]);
-
-    
-    conn.sendMessage(m.chat, { react: { text: '🎶️', key: m.key } });
-    
-  } catch (e) {
-    console.error("Error pada fitur play:", e);
-    return conn.reply(m.chat, `❌ *Terjadi kesalahan:* ${e.message}`, m);
   }
 };
 
-handler.help = ['play3'].map(v => v + ' <query>');
+const handler = async (m, { conn, usedPrefix, text, command }) => {
+  if (!text) return m.reply(`Ketikkan nama lagu yang kamu sedang cari, misal\n${usedPrefix + command} dj kane`);
+
+  try {
+    const search = await yts(text);
+    const video = search.all[0];
+
+    if (!video) {
+      return m.reply('Lagu yang Anda cari tidak ditemukan.');
+    }
+
+    const detail = `*Youtube Audio Play*\n\n❏ Title : ${video.title}\n` +
+      `❏ View : ${video.views}\n` +
+      `❏ Author : ${video.author.name}\n` +
+      `❏ Upload : ${video.ago}\n` +
+      `🔗 Url : ${video.url}\n` +
+      `_Proses pengunduhan audio..._`;
+
+    await conn.sendMessage(m.chat, {
+      text: detail,
+      contextInfo: {
+        forwardingScore: 999,
+        isForwarded: true,
+        externalAdReply: {
+          title: video.title,
+          mediaType: 1,
+          previewType: 1,
+          body: `YT Play By Mahiru-MD`,
+          thumbnailUrl: video.image,
+          renderLargerThumbnail: true,
+          mediaUrl: video.url,
+          sourceUrl: video.url
+        }
+      }
+    }, { quoted: m });
+
+    const result = await ddownr.download(video.url, "mp3");
+    if (!result.downloadUrl) return m.reply('Gagal mengunduh audio.');
+
+    await conn.sendMessage(m.chat, {
+      audio: { url: result.downloadUrl },
+      mimetype: 'audio/mpeg',
+    }, { quoted: m });
+  } catch (error) {
+    m.reply(`Terjadi kesalahan:\n${error.message}`);
+  }
+};
+
+handler.help = ['play3'].map(v => v + ' <URL atau Judul Lagu>');
 handler.tags = ['downloader'];
-handler.command = /^(play3|mp3-v3)$/i;
+handler.command = /^(play3|song3|lagu|carikanlagu|cari kan lagu|songs3|musik|music)$/i;
 
 module.exports = handler;
