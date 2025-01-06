@@ -28,7 +28,7 @@ ${json.soal}
 ▢ Timeout *${(timeout / 1000).toFixed(2)} detik*
 ▢ Ketik ${usedPrefix}susn untuk bantuan
 ▢ Bonus: ${poin} money
-▢ *Balas/ replay soal ini untuk menjawab*
+▢ *Balas/reply soal ini untuk menjawab, .nyerah untuk menyerah*
 └──────────────
 `.trim();
 
