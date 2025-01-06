@@ -1,44 +1,58 @@
-let fetch = require('node-fetch')
+let fetch = require('node-fetch');
 
-let timeout = 100000
-let poin = 10000
+let timeout = 100000;
+let poin = 10000;
 let handler = async (m, { conn, usedPrefix }) => {
-    conn.tebakkata = conn.tebakkata ? conn.tebakkata : {}
-    let id = m.chat
+    conn.tebakkata = conn.tebakkata ? conn.tebakkata : {};
+    let id = m.chat;
     if (id in conn.tebakkata) {
-        conn.reply(m.chat, 'Masih ada soal belum terjawab di chat ini', conn.tebakkata[id][0])
-        throw false
+        conn.reply(m.chat, 'Masih ada soal belum terjawab di chat ini.', conn.tebakkata[id][0]);
+        throw false;
     }
-    // di sini dia ngambil data dari api
-    let src = await (await fetch(`https://api.betabotz.eu.org/api/game/tebakkata?apikey=${lann}`)).json()
-    let json = src[Math.floor(Math.random() * src.length)]
-    // buat caption buat di tampilin di wa
-    let caption = `
+
+    try {
+        let response = await fetch('https://api.tioo.eu.org/tebakkata');
+        let src = await response.json();
+
+        if (!src.status || !src.result || !src.result.soal || !src.result.jawaban) {
+            conn.reply(m.chat, 'Tidak ada soal tersedia saat ini. Silakan coba lagi nanti.', m);
+            return;
+        }
+
+        let json = src.result;
+        
+        let caption = `
 ${json.soal}
 
 ┌─⊷ *SOAL*
 ▢ Timeout *${(timeout / 1000).toFixed(2)} detik*
 ▢ Ketik ${usedPrefix}kata untuk bantuan
 ▢ Bonus: ${poin} money
-▢ *Balas/ replay soal ini untuk menjawab*
+▢ *Balas/reply soal ini untuk menjawab, Ketik .nyerah untuk menyerah*
 └──────────────
-`.trim()
-    conn.tebakkata[id] = [
-        await conn.reply(m.chat, caption, m),
-        json, poin,
-        setTimeout(() => {
-            if (conn.tebakkata[id]) conn.reply(m.chat, `Waktu habis!\nJawabannya adalah *${json.jawaban}*`, conn.tebakkata[id][0])
-            delete conn.tebakkata[id]
-        }, timeout)
-    ]
-}
-handler.help = ['tebakkata']
-handler.tags = ['game']
-handler.command = /^tebakkata/i
-handler.register = false
-handler.group = true
+`.trim();
 
-module.exports = handler
+        // Simpan soal aktif dalam objek
+        conn.tebakkata[id] = [
+            await conn.reply(m.chat, caption, m),
+            json, poin,
+            setTimeout(() => {
+                if (conn.tebakkata[id]) {
+                    conn.reply(m.chat, `Waktu habis!\nJawabannya adalah *${json.jawaban}*`, conn.tebakkata[id][0]);
+                    delete conn.tebakkata[id];
+                }
+            }, timeout)
+        ];
+    } catch (error) {
+        console.error(error);
+        conn.reply(m.chat, 'Terjadi kesalahan saat mengambil soal. Silakan coba lagi nanti.', m);
+    }
+};
 
-// tested di bileys versi 6.5.0 dan sharp versi 0.30.5
-// danaputra133
+handler.help = ['tebakkata'];
+handler.tags = ['game'];
+handler.command = /^tebakkata/i;
+handler.register = false;
+handler.group = true;
+
+module.exports = handler;
