@@ -8,9 +8,17 @@ let handler = async (m, { conn, usedPrefix }) => {
     conn.reply(m.chat, 'Masih ada soal belum terjawab di chat ini', conn.tebakgambar[id][0])
     throw false
   }
-  if (!src) src = await (await fetch(`https://api.betabotz.eu.org/api/game/tebakgambar?apikey=${lann}`)).json()
-  let json = src[Math.floor(Math.random() * src.length)]
+  
+  // Mengambil data dari URL yang diberikan
+  if (!src) {
+    const response = await fetch('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebakgambar.json');
+    src = await response.json();
+  }
+  
+  // Memilih gambar secara acak
+  let json = src[Math.floor(Math.random() * src.length)];
   if (!json) throw "Terjadi kesalahan, ulangi lagi perintah!"
+  
   let caption = `
 ≡ _GAME TEBAK GAMBAR_
 
@@ -22,7 +30,8 @@ let handler = async (m, { conn, usedPrefix }) => {
 ▢ *REPLAY* pesan ini untuk\nmenjawab
 └──────────────
 
-    `.trim()
+  `.trim()
+  
   conn.tebakgambar[id] = [
     await conn.sendMessage(m.chat, { image: { url: json.img }, caption: caption}, { quoted: m }),
     json, poin,
