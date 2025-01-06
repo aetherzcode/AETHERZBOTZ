@@ -1,19 +1,26 @@
-let fetch = require('node-fetch')
+let fetch = require('node-fetch');
 
-let timeout = 100000
-let poin = 10000
+let timeout = 100000;
+let poin = 10000;
 let handler = async (m, { conn, usedPrefix }) => {
-    conn.susun = conn.susun ? conn.susun : {}
-    let id = m.chat
+    conn.susun = conn.susun ? conn.susun : {};
+    let id = m.chat;
     if (id in conn.susun) {
-        conn.reply(m.chat, 'Masih ada soal belum terjawab di chat ini', conn.susun[id][0])
-        throw false
+        conn.reply(m.chat, 'Masih ada soal belum terjawab di chat ini', conn.susun[id][0]);
+        throw false;
     }
-    // di sini dia ngambil data dari api
-    let src = await (await fetch(`https://api.betabotz.eu.org/api/game/susunkata?apikey=${lann}`)).json()
-    let json = src[Math.floor(Math.random() * src.length)]
-    // buat caption buat di tampilin di wa
-    let caption = `
+
+    try {
+        let response = await fetch(`https://api.tioo.eu.org/susunkata`);
+        let data = await response.json();
+
+        if (!data.status || !data.result || !data.result.soal || !data.result.tipe || !data.result.jawaban) {
+            conn.reply(m.chat, 'Data soal tidak valid. Silakan coba lagi.', m);
+            return;
+        }
+
+        let json = data.result;
+        let caption = `
 ${json.soal}
 
 ┌─⊷ *SOAL*
@@ -23,22 +30,28 @@ ${json.soal}
 ▢ Bonus: ${poin} money
 ▢ *Balas/ replay soal ini untuk menjawab*
 └──────────────
-`.trim()
-    conn.susun[id] = [
-        await conn.reply(m.chat, caption, m),
-        json, poin,
-        setTimeout(() => {
-            if (conn.susun[id]) conn.reply(m.chat, `Waktu habis!\nJawabannya adalah *${json.jawaban}*`, conn.susun[id][0])
-            delete conn.susun[id]
-        }, timeout)
-    ]
-}
-handler.help = ['susunkata']
-handler.tags = ['game']
-handler.command = /^susunkata/i
-handler.register = false
-handler.group = false
+`.trim();
 
-module.exports = handler
+        conn.susun[id] = [
+            await conn.reply(m.chat, caption, m),
+            json, poin,
+            setTimeout(() => {
+                if (conn.susun[id]) {
+                    conn.reply(m.chat, `Waktu habis!\nJawabannya adalah *${json.jawaban}*`, conn.susun[id][0]);
+                    delete conn.susun[id];
+                }
+            }, timeout)
+        ];
+    } catch (error) {
+        console.error("Error API:", error);
+        conn.reply(m.chat, 'Terjadi kesalahan saat mengambil soal. Silakan coba lagi nanti.', m);
+    }
+};
 
-// tested di bileys versi 6.5.0 dan sharp versi 0.30.5
+handler.help = ['susunkata'];
+handler.tags = ['game'];
+handler.command = /^susunkata/i;
+handler.register = false;
+handler.group = true;
+
+module.exports = handler;
