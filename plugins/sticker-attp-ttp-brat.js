@@ -1,70 +1,54 @@
-let { 
-    sticker5 
-} = require('../lib/sticker')
+let { sticker5 } = require('../lib/sticker')
 let fs = require('fs')
 let fetch = require('node-fetch')
 
-let handler = async (m, {
-    conn, 
-    args, 
-    text, 
-    usedPrefix, 
-    command
-}) => {
-    const packname = global.packname
-    const author = global.author
+let handler = async (m, { conn, args, text, usedPrefix, command }) => {
+    const packname = global.packname || 'Sticker'
+    const author = global.author || 'Bot'
     
-    text = text ? text : m.quoted && m.quoted.text ? m.quoted.text : m.quoted && m.quoted.caption ? m.quoted.caption : m.quoted && m.quoted.description ? m.quoted.description : ''
-    if (!text) throw `Example : ${usedPrefix + command} Lagi Ruwet`
-    
+    text = text || m.quoted?.text || m.quoted?.caption || m.quoted?.description || ''
+    if (!text) throw `Contoh penggunaan: ${usedPrefix + command} Lagi Ruwet`
+
     let res;
-    var error = fs.readFileSync(`./media/sticker/emror.webp`)
-    
+    const errorPath = `./media/sticker/emror.webp`
+
     try {
-
         if (command === 'attp') {
-            res = `https://api.betabotz.eu.org/api/maker/attp?text=${encodeURIComponent(text.substring(0, 151))}&apikey=${lann}`;
+            res = `https://api.tioo.eu.org/attp?text=${encodeURIComponent(text.substring(0, 151))}`;
         } else if (command === 'ttp') {
-            res = `https://api.betabotz.eu.org/api/maker/ttp?text=${encodeURIComponent(text.substring(0, 151))}&apikey=${lann}`;
+            res = `https://api.tioo.eu.org/ttp?text=${encodeURIComponent(text.substring(0, 151))}`;
         } else if (command === 'brat') {
-            res = `https://api.betabotz.eu.org/api/maker/brat?text=${encodeURIComponent(text.substring(0, 151))}&apikey=${lann}`;
+            res = `https://api.tioo.eu.org/brat?text=${encodeURIComponent(text.substring(0, 151))}`;
+        } else {
+            throw new Error('Perintah tidak dikenal');
         }
-        // switch(command) {
-        //     case 'attp':
-        //         res = `https://api.betabotz.eu.org/api/maker/attp?text=${encodeURIComponent(text.substring(0, 151))}&apikey=${lann}`;
-        //         break;
-        //     case 'ttp':
-        //         res = `https://api.betabotz.eu.org/api/maker/ttp?text=${encodeURIComponent(text.substring(0, 151))}&apikey=${lann}`;
-        //         break;
-        //     case 'brat':
-        //         res = `https://api.betabotz.eu.org/api/maker/brat?text=${encodeURIComponent(text.substring(0, 151))}&apikey=${lann}`;
-        //         break;
-        // }
 
-        let fetchResult = await fetch(res)
-        let imageBuffer = await fetchResult.buffer()
-
-        let stiker = await sticker5(
-            imageBuffer,
-            null,
-            packname,
-            author,
-            ['🎨']
-        )
+        let fetchResult = await fetch(res);
+        if (!fetchResult.ok) throw new Error(`Gagal mengunduh gambar dari API: ${fetchResult.statusText}`);
+        
+        let imageBuffer = await fetchResult.buffer();
+        let stiker = await sticker5(imageBuffer, null, packname, author, ['🎨']);
         
         if (stiker) {
-            await conn.sendFile(m.chat, stiker, 'sticker.webp', '', m)
+            await conn.sendFile(m.chat, stiker, 'sticker.webp', '', m);
         } else {
-            throw new Error('Pembuatan stiker gagal')
+            throw new Error('Pembuatan stiker gagal');
         }
-        
+
     } catch (e) {
-        console.error('Error:', e)
-        await conn.sendFile(m.chat, error, 'error.webp', '', m)
+        console.error('Error:', e.message || e);
+
+        if (fs.existsSync(errorPath)) {
+            let errorSticker = fs.readFileSync(errorPath);
+            await conn.sendFile(m.chat, errorSticker, 'error.webp', '', m);
+        } else {
+            await m.reply('Terjadi kesalahan, namun file error tidak ditemukan.');
+        }
     }
 }
 
-handler.command = handler.help = ['attp', 'ttp', 'brat']
+handler.command = ['attp', 'ttp', 'brat']
+handler.help = ['attp', 'ttp', 'brat']
 handler.tags = ['sticker']
 handler.limit = true
 handler.group = false
